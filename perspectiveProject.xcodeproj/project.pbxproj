@@ -15,6 +15,12 @@
 		9A2820561A008267003991A4 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9A2820551A008267003991A4 /* Images.xcassets */; };
 		9A2820591A008267003991A4 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9A2820571A008267003991A4 /* MainMenu.xib */; };
 		9A2820651A008267003991A4 /* perspectiveProjectTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A2820641A008267003991A4 /* perspectiveProjectTests.m */; };
+		9A2820701A00BB5A003991A4 /* StageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A28206F1A00BB5A003991A4 /* StageView.m */; };
+		9AA364081A03763700CABF65 /* FileParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 9AA364071A03763700CABF65 /* FileParser.m */; };
+		9AA3640B1A03767800CABF65 /* Object3DEntity.m in Sources */ = {isa = PBXBuildFile; fileRef = 9AA3640A1A03767800CABF65 /* Object3DEntity.m */; };
+		9AA3640E1A03770700CABF65 /* Vector3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 9AA3640D1A03770700CABF65 /* Vector3D.m */; };
+		9AA364111A0383B300CABF65 /* Triangle3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 9AA364101A0383B300CABF65 /* Triangle3D.m */; };
+		9AA364141A038D5E00CABF65 /* BoxObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 9AA364131A038D5E00CABF65 /* BoxObject.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -43,6 +49,18 @@
 		9A28205E1A008267003991A4 /* perspectiveProjectTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = perspectiveProjectTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9A2820631A008267003991A4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9A2820641A008267003991A4 /* perspectiveProjectTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = perspectiveProjectTests.m; sourceTree = "<group>"; };
+		9A28206E1A00BB5A003991A4 /* StageView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StageView.h; sourceTree = "<group>"; };
+		9A28206F1A00BB5A003991A4 /* StageView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StageView.m; sourceTree = "<group>"; };
+		9AA364061A03763700CABF65 /* FileParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileParser.h; sourceTree = "<group>"; };
+		9AA364071A03763700CABF65 /* FileParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FileParser.m; sourceTree = "<group>"; };
+		9AA364091A03767800CABF65 /* Object3DEntity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Object3DEntity.h; sourceTree = "<group>"; };
+		9AA3640A1A03767800CABF65 /* Object3DEntity.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Object3DEntity.m; sourceTree = "<group>"; };
+		9AA3640C1A03770700CABF65 /* Vector3D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Vector3D.h; sourceTree = "<group>"; };
+		9AA3640D1A03770700CABF65 /* Vector3D.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Vector3D.m; sourceTree = "<group>"; };
+		9AA3640F1A0383B300CABF65 /* Triangle3D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Triangle3D.h; sourceTree = "<group>"; };
+		9AA364101A0383B300CABF65 /* Triangle3D.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Triangle3D.m; sourceTree = "<group>"; };
+		9AA364121A038D5E00CABF65 /* BoxObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BoxObject.h; sourceTree = "<group>"; };
+		9AA364131A038D5E00CABF65 /* BoxObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BoxObject.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -86,6 +104,8 @@
 			children = (
 				9A2820481A008267003991A4 /* AppDelegate.h */,
 				9A2820491A008267003991A4 /* AppDelegate.m */,
+				9A28206E1A00BB5A003991A4 /* StageView.h */,
+				9A28206F1A00BB5A003991A4 /* StageView.m */,
 				9A28204D1A008267003991A4 /* GameView.h */,
 				9A28204E1A008267003991A4 /* GameView.m */,
 				9A2820501A008267003991A4 /* GameViewController.h */,
@@ -94,6 +114,16 @@
 				9A2820551A008267003991A4 /* Images.xcassets */,
 				9A2820571A008267003991A4 /* MainMenu.xib */,
 				9A2820461A008267003991A4 /* Supporting Files */,
+				9AA364061A03763700CABF65 /* FileParser.h */,
+				9AA364071A03763700CABF65 /* FileParser.m */,
+				9AA364091A03767800CABF65 /* Object3DEntity.h */,
+				9AA3640A1A03767800CABF65 /* Object3DEntity.m */,
+				9AA3640C1A03770700CABF65 /* Vector3D.h */,
+				9AA3640D1A03770700CABF65 /* Vector3D.m */,
+				9AA3640F1A0383B300CABF65 /* Triangle3D.h */,
+				9AA364101A0383B300CABF65 /* Triangle3D.m */,
+				9AA364121A038D5E00CABF65 /* BoxObject.h */,
+				9AA364131A038D5E00CABF65 /* BoxObject.m */,
 			);
 			path = perspectiveProject;
 			sourceTree = "<group>";
@@ -224,10 +254,16 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9AA364081A03763700CABF65 /* FileParser.m in Sources */,
 				9A2820521A008267003991A4 /* GameViewController.m in Sources */,
+				9AA3640B1A03767800CABF65 /* Object3DEntity.m in Sources */,
+				9A2820701A00BB5A003991A4 /* StageView.m in Sources */,
+				9AA364111A0383B300CABF65 /* Triangle3D.m in Sources */,
 				9A28204F1A008267003991A4 /* GameView.m in Sources */,
+				9AA364141A038D5E00CABF65 /* BoxObject.m in Sources */,
 				9A28204C1A008267003991A4 /* main.m in Sources */,
 				9A28204A1A008267003991A4 /* AppDelegate.m in Sources */,
+				9AA3640E1A03770700CABF65 /* Vector3D.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -414,6 +450,7 @@
 				9A28206A1A008267003991A4 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		9A28206B1A008267003991A4 /* Build configuration list for PBXNativeTarget "perspectiveProjectTests" */ = {
 			isa = XCConfigurationList;
@@ -422,6 +459,7 @@
 				9A28206D1A008267003991A4 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

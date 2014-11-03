@@ -8,10 +8,9 @@
 
 #import <SceneKit/SceneKit.h>
 
-#import "GameView.h"
+#import "StageView.h"
 
 @interface GameViewController : NSViewController
-
-@property (assign) IBOutlet GameView *gameView;
+@property (strong) IBOutlet StageView *stageView;
 
 @end
