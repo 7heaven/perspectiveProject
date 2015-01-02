@@ -8,6 +8,8 @@
 
 #import <Foundation/Foundation.h>
 
+#define Vector3DMake(a, b, c) [[Vector3D alloc] initWithX:a y:b z:c]
+
 @interface Vector3D : NSObject
 
 @property (nonatomic) CGFloat x;
@@ -18,10 +20,8 @@
 @property (nonatomic) CGFloat x2d;
 @property (nonatomic) CGFloat y2d;
 
-- (instancetype) initWithX:(CGFloat) x
-                         y:(CGFloat) y
-                         z:(CGFloat) z;
+- (instancetype)initWithX:(CGFloat)x y:(CGFloat)y z:(CGFloat)z;
 
-- (Vector3D *) normalizeVector;
+- (Vector3D *)normalizeVector;
 
 @end

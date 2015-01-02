@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>395C34AB-5C35-4A81-9D98-7052170D0C94</string>
+	<key>IDESourceControlProjectName</key>
+	<string>perspectiveProject</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>2D05A2F3AE410903DDA94B00E491A1826329DD19</key>
+		<string>github.com:7heaven/perspectiveProject.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>perspectiveProject.xcodeproj</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>2D05A2F3AE410903DDA94B00E491A1826329DD19</key>
+		<string>../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>github.com:7heaven/perspectiveProject.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>111</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>2D05A2F3AE410903DDA94B00E491A1826329DD19</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>2D05A2F3AE410903DDA94B00E491A1826329DD19</string>
+			<key>IDESourceControlWCCName</key>
+			<string>perspectiveProject</string>
+		</dict>
+	</array>
+</dict>
+</plist>

@@ -7,9 +7,21 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "Object3DEntity.h"
+
+@class FileParser;
+
+@protocol FileParserDelegate<NSObject>
+@optional
+
+- (void)fileParser:(FileParser *)fileParser parseProgress:(CGFloat)progress;
+
+@end
 
 @interface FileParser : NSObject
 
-+(NSMutableArray *) parse3DSFileWithPath:(NSString *) path;
+@property (weak, nonatomic) id<FileParserDelegate> delegate;
+
+- (Object3DEntity *)parse3DSFileWithPath:(NSString *)path;
 
 @end

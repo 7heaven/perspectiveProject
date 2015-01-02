@@ -10,4 +10,23 @@
 
 @implementation Triangle3D
 
+- (instancetype)initWithV0:(Vector3D *)v0 v1:(Vector3D *)v1 v2:(Vector3D *)v2 {
+    if (self = [super init]) {
+        self.v0 = v0;
+        self.v1 = v1;
+        self.v2 = v2;
+    }
+    return self;
+}
+
+- (instancetype)initWithSimpleV0:(int)v0 v1:(int)v1 v2:(int)v2 {
+    if (self = [super init]) {
+        self.v0Simple = v0;
+        self.v1Simple = v1;
+        self.v2Simple = v2;
+    }
+
+    return self;
+}
+
 @end

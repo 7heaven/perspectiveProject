@@ -10,7 +10,8 @@
 
 #import "StageView.h"
 
-@interface GameViewController : NSViewController
+@interface GameViewController : NSViewController<StageViewRateDelegate>
 @property (strong) IBOutlet StageView *stageView;
+@property (weak) IBOutlet NSTextField *rateLabel;
 
 @end

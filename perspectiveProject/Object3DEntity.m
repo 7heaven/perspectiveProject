@@ -10,4 +10,14 @@
 
 @implementation Object3DEntity
 
+- (instancetype)init {
+    if (self = [super init]) {
+        self.vectorArray = [[NSMutableArray alloc] init];
+        self.triangleArray = [[NSMutableArray alloc] init];
+        self.uvMapArray = [[NSMutableArray alloc] init];
+    }
+
+    return self;
+}
+
 @end

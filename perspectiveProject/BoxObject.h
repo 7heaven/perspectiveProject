@@ -10,6 +10,6 @@
 
 @interface BoxObject : Object3DEntity
 
-- (instancetype) initWithLength:(NSInteger) length;
+- (instancetype)initWithLength:(int)length;
 
 @end
