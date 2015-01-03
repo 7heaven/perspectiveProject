@@ -608,15 +608,16 @@ typedef struct {
 
                 int nextCodeTableIndex = lzwSize + 2;
 
-                unsigned short oldCode = -1;
+                unsigned short oldCode = 65535;
                 unsigned short newCode;
 
-                int step = 7;
+                int step = 0;
 
                 int codeSizeLimit = LZW_MiniCS + 1;
 
                 NSMutableArray *indexStream = [[NSMutableArray alloc] init];
 
+                int current = 0;
                 do {
                     byteData = [NSData dataWithBytes:((char *)[fileData bytes] + index)length:1];
                     index += 1;
@@ -633,83 +634,82 @@ typedef struct {
                     for (blockStep = 0; blockStep < imageBlockSize;) {
                         unsigned char ii;
 
-                        byteData = [NSData dataWithBytes:((char *)[fileData bytes] + blockStep + bitIndex)length:1];
+                        newCode = 0;
+                        for (int i = 1; i <= codeSizeLimit; i++) {
+                            if (i == 1) {
+                                byteData =
+                                    [NSData dataWithBytes:((char *)[fileData bytes] + blockStep + bitIndex)length:1];
+                                index++;
 
-                        [byteData getBytes:&ii length:1];
+                                [byteData getBytes:&ii length:1];
 
-                        if (blockStep == 0 && ((unsigned char *)[byteData bytes])[0] == clearCode) {
-                            NSLog(@"start");
-                            index++;
-                        } else {
-                            newCode = 0;
-                            for (int i = 1; i <= codeSizeLimit; i++) {
-                                if (i == 1) {
-                                    byteData = [NSData dataWithBytes:((char *)[fileData bytes] + blockStep + bitIndex)
-                                                              length:1];
-                                    index++;
+                                NSLog(@"step:%d, %d, %@", (ii >> step) & 0x1, step, byteData);
+                                newCode = (ii >> step) & 0x1;
 
-                                    [byteData getBytes:&ii length:1];
-
-                                    NSLog(@"step:%d", (ii >> step) & 0x1);
-                                    newCode = (ii >> step) & 0x1;
-
-                                } else {
-                                    newCode <<= 1;
-                                    NSLog(@"step:%d", (ii >> step) & 0x1);
-                                    newCode |= (ii >> step) & 0x1;
-                                }
-
-                                if (step == 0) {
-                                    byteData = [NSData dataWithBytes:((char *)[fileData bytes] + blockStep + bitIndex)
-                                                              length:1];
-                                    index += 1;
-                                    blockStep++;
-
-                                    [byteData getBytes:&ii length:1];
-                                    step = 7;
-                                } else {
-                                    step--;
-                                }
-
-                                if (oldCode == -1) {
-                                    oldCode = newCode;
-                                }
-                            }
-
-                            NSLog(@"newCode:%d", newCode);
-
-                            if (blockStep == 0) {
-                                //[indexStream addObjectsFromArray:codeTable[@(newCode)]];
                             } else {
-                                BOOL equals = codeTable[@(newCode)] != nil;
-
-                                if (equals) {
-                                    k = (unsigned char)[codeTable[@(newCode)][0] intValue];
-
-                                    [indexStream addObjectsFromArray:codeTable[@(newCode)]];
-                                    [codeTable setObject:[codeTable[@(oldCode)] arrayByAddingObject:@(k)]
-                                                  forKey:@(nextCodeTableIndex)];
-                                    NSLog(@"newCode:%@", [codeTable[@(oldCode)] arrayByAddingObject:@(k)]);
-                                    nextCodeTableIndex++;
-                                } else {
-                                    k = (unsigned char)[codeTable[@(oldCode)][0] intValue];
-
-                                    NSArray *oldCodeK = [codeTable[@(oldCode)] arrayByAddingObject:@(k)];
-                                    [indexStream addObjectsFromArray:oldCodeK];
-                                    if (oldCodeK) [codeTable setObject:oldCodeK forKey:@(nextCodeTableIndex)];
-                                    NSLog(@"newCode:%@", oldCodeK);
-
-                                    nextCodeTableIndex++;
-                                }
-
-                                if (nextCodeTableIndex == pow(2, codeSizeLimit) - 1) {
-                                    NSLog(@"nextCodeTableIndex:%d", nextCodeTableIndex);
-                                    codeSizeLimit++;
-                                }
+                                NSLog(@"step:%d, %d, %@", (ii >> step) & 0x1, step, byteData);
+                                newCode |= ((ii >> step) & 0x1) << (i - 1);
                             }
 
-                            oldCode = newCode;
+                            if (step == 7) {
+                                NSLog(@"next");
+                                blockStep++;
+                                byteData =
+                                    [NSData dataWithBytes:((char *)[fileData bytes] + blockStep + bitIndex)length:1];
+                                index += 1;
+
+                                [byteData getBytes:&ii length:1];
+                                step = 0;
+                            } else {
+                                step++;
+                            }
+
+                            if (oldCode == 65535) {
+                                oldCode = newCode;
+                            }
                         }
+
+                        if (newCode == clearCode && blockStep == 0) {
+                            NSLog(@"clearCode:%d", newCode);
+                            oldCode = 65535;
+                            continue;
+                        }
+
+                        NSLog(@"newCode:%@, %d", [FileParser getBitStringForChar:newCode], newCode);
+
+                        BOOL equals = codeTable[@(newCode)] != nil;
+
+                        if (current == 0) {
+                            [indexStream addObjectsFromArray:codeTable[@(newCode)]];
+                            current = 1;
+                        } else if (newCode == eoi) {
+                            break;
+                        } else {
+                            if (equals) {
+                                k = (unsigned char)[codeTable[@(newCode)][0] intValue];
+
+                                [indexStream addObjectsFromArray:codeTable[@(newCode)]];
+                                NSArray *oldCodeK = [codeTable[@(oldCode)] arrayByAddingObject:@(k)];
+                                if (oldCodeK) [codeTable setObject:oldCodeK forKey:@(nextCodeTableIndex)];
+                                NSLog(@"newCode:%@ equals", [codeTable[@(oldCode)] arrayByAddingObject:@(k)]);
+                                nextCodeTableIndex++;
+                            } else {
+                                k = (unsigned char)[codeTable[@(oldCode)][0] intValue];
+
+                                NSArray *oldCodeK = [codeTable[@(oldCode)] arrayByAddingObject:@(k)];
+                                [indexStream addObjectsFromArray:oldCodeK];
+                                if (oldCodeK) [codeTable setObject:oldCodeK forKey:@(nextCodeTableIndex)];
+                                NSLog(@"newCode:%@", oldCodeK);
+
+                                nextCodeTableIndex++;
+                            }
+                        }
+
+                        if ((nextCodeTableIndex - 1) == pow(2, codeSizeLimit) - 1) {
+                            codeSizeLimit++;
+                        }
+
+                        oldCode = newCode;
 
                         NSLog(@"imageBlock:%d, data:%@, index:%ld", blockStep, byteData, index);
                     }
