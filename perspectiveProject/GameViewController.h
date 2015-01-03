@@ -9,9 +9,11 @@
 #import <SceneKit/SceneKit.h>
 
 #import "StageView.h"
+#import "FileParser.h"
 
 @interface GameViewController : NSViewController<StageViewRateDelegate>
 @property (strong) IBOutlet StageView *stageView;
 @property (weak) IBOutlet NSTextField *rateLabel;
+@property (weak) IBOutlet NSImageView *testImage;
 
 @end

@@ -16,6 +16,14 @@
 
 - (void)awakeFromNib {
     self.stageView.delegate = self;
+
+    [self.testImage setImageScaling:NSImageScaleAxesIndependently];
+
+    FileParser *parser = [[FileParser alloc] init];
+
+    NSImage *image = [parser parseGIFFileWithPath:@"/Users/7heaven/Downloads/sample_1.gif"];
+
+    [self.testImage setImage:image];
     /*
      // create a new scene
      SCNScene *scene = [SCNScene sceneNamed:@"art.scnassets/ship.dae"];

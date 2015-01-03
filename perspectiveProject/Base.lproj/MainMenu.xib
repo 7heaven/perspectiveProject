@@ -667,11 +667,15 @@
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
+                            <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="RAY-ud-Qol">
+                                <rect key="frame" x="116" y="153" width="309" height="297"/>
+                                <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" id="7XB-7Q-Aat"/>
+                            </imageView>
                         </subviews>
                     </customView>
                 </subviews>
             </view>
-            <point key="canvasLocation" x="385" y="452"/>
+            <point key="canvasLocation" x="385" y="701"/>
         </window>
         <customObject id="494" customClass="AppDelegate">
             <connections>
@@ -683,6 +687,7 @@
             <connections>
                 <outlet property="rateLabel" destination="10d-6y-DAe" id="wV7-Vi-CZ5"/>
                 <outlet property="stageView" destination="6vR-dh-DKh" id="Kn6-jQ-9kc"/>
+                <outlet property="testImage" destination="RAY-ud-Qol" id="jNI-1l-mGn"/>
                 <outlet property="view" destination="372" id="bTQ-MN-Ejh"/>
             </connections>
         </viewController>

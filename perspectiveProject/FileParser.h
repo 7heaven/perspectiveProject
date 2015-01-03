@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "Object3DEntity.h"
+#import "GIF.h"
 
 @class FileParser;
 
@@ -23,5 +24,7 @@
 @property (weak, nonatomic) id<FileParserDelegate> delegate;
 
 - (Object3DEntity *)parse3DSFileWithPath:(NSString *)path;
+- (NSImage *)parseJPEGFileWithPath:(NSString *)path;
+- (NSImage *)parseGIFFileWithPath:(NSString *)path;
 
 @end

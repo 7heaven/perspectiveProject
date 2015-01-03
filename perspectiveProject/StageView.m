@@ -91,6 +91,7 @@ typedef NS_ENUM(NSInteger, RotateAxis) { RotateAxisX, RotateAxisY, RotateAxisZ }
         parser = [[FileParser alloc] init];
         parser.delegate = self;
         _object = [parser parse3DSFileWithPath:@"/Users/7heaven/Downloads/Mirror.3DS"];
+        //        [parser parseJPEGFileWithPath:@"/Users/7heaven/Downloads/frog.jpg"];
     }
 
     _intx = location.x;
@@ -98,7 +99,7 @@ typedef NS_ENUM(NSInteger, RotateAxis) { RotateAxisX, RotateAxisY, RotateAxisZ }
 }
 
 - (void)fileParser:(FileParser *)fileParser parseProgress:(CGFloat)progress {
-    NSLog(@"fileParserProgress:%f", progress);
+    //    NSLog(@"fileParserProgress:%f", progress);
 }
 
 - (void)mouseDragged:(NSEvent *)theEvent {
@@ -225,14 +226,14 @@ typedef NS_ENUM(NSInteger, RotateAxis) { RotateAxisX, RotateAxisY, RotateAxisZ }
     return v;
 }
 
-- (NSDictionary *)crossProWithV0:(Vector3D *)v0 v1:(Vector3D *)v1 center:(CGPoint)centerPoint {
+- (NSDictionary *)crossProWithV0:(Vector3D *)v0 v1:(Vector3D *)v1 center:(CGPoint)cPoint {
     CGFloat t_x = v0.y * v1.z - v0.z * v1.y;
     CGFloat t_y = v0.z * v1.x - v0.x * v1.z;
     CGFloat t_z = v0.x * v1.y - v0.y * v1.x;
 
     CGFloat m = sqrt(t_x * t_x + t_y * t_y + t_z * t_z);
-    t_x -= m * (centerPoint.x - centerPoint.x) / centerPoint.x;
-    t_y -= m * (centerPoint.y - centerPoint.x) / centerPoint.x;
+    t_x -= m * (cPoint.x - cPoint.x) / cPoint.x;
+    t_y -= m * (cPoint.y - cPoint.x) / cPoint.x;
     //向量单位化
     t_x /= m;
     t_y /= m;
