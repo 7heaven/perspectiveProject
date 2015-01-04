@@ -21,7 +21,7 @@
 
     FileParser *parser = [[FileParser alloc] init];
 
-    NSImage *image = [parser parseGIFFileWithPath:@"/Users/7heaven/Downloads/132.gif"];
+    NSImage *image = [parser parseGIFFileWithPath:@"/Users/caifangmao/Downloads/gif/rabbit.gif"];
 
     [self.testImage setImage:image];
     /*
