@@ -17,11 +17,11 @@
 - (void)awakeFromNib {
     self.stageView.delegate = self;
 
-    [self.testImage setImageScaling:NSImageScaleAxesIndependently];
+    [self.testImage setImageScaling:NSImageScaleProportionallyDown];
 
     FileParser *parser = [[FileParser alloc] init];
 
-    NSImage *image = [parser parseGIFFileWithPath:@"/Users/caifangmao/Downloads/gif/rabbit.gif"];
+    NSImage *image = [parser parseGIFFileWithPath:@"/Users/7heaven/Downloads/gif/sample_2_animation.gif"];
 
     [self.testImage setImage:image];
     /*

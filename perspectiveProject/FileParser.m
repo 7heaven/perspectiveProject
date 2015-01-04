@@ -561,19 +561,12 @@ typedef struct {
                         rgb.red = bytes[0];
                         rgb.green = bytes[1];
                         rgb.blue = bytes[2];
-                        //
-                        //                        NSString *colorString = [NSString
-                        //                            stringWithFormat:@"0x%@",
-                        //                                             [byteData.description
-                        //                                                 substringWithRange:NSMakeRange(1,
-                        //                                                 [byteData.description length] - 2)]];
 
                         [localColorTable addObject:[NSValue valueWithBytes:&rgb objCType:@encode(HL_RGB)]];
                     }
 
                     currentColorTable = [localColorTable copy];
                 } else {
-                    // index += localTableLength;
                     currentColorTable = [globalColorTable copy];
                 }
 
@@ -587,8 +580,8 @@ typedef struct {
 
                 float lzwSize = 1 << LZW_MiniCS;
                 NSMutableDictionary *codeTable = [[NSMutableDictionary alloc] init];
-                unsigned char clearCode = (unsigned char)lzwSize;
-                unsigned char eoi = clearCode + 0x1;
+                unsigned int clearCode = (unsigned int)lzwSize;
+                unsigned int eoi = clearCode + 0x1;
 
                 for (int i = 0; i < lzwSize; i++) {
                     if (i < [currentColorTable count]) {
@@ -603,8 +596,8 @@ typedef struct {
 
                 int nextCodeTableIndex = lzwSize + 2;
 
-                unsigned short oldCode = 65535;
-                unsigned short newCode;
+                unsigned int oldCode = 65535;
+                unsigned int newCode;
 
                 int step = 0;
 
@@ -615,256 +608,277 @@ typedef struct {
                 NSMutableArray *indexStream = [[NSMutableArray alloc] init];
 
                 int current = 0;
+
+                int blockCount = 0;
                 do {
-                    //                    byteData = [NSData dataWithBytes:((char *)[fileData bytes] + index)length:1];
-                    //                    index += 1;
-                    //
-                    //                    unsigned char imageBlockSize;
-                    //                    [byteData getBytes:&imageBlockSize length:1];
-                    //                    NSLog(@"imageBlock:%d, size:%d, ori:%@", imageCount, imageBlockSize,
-                    //                    byteData);
-                    //
-                    //                    unsigned char k;
-                    //
-                    //                    int blockStep = 0;
-                    //                    NSInteger bitIndex = index;
+                    byteData = [NSData dataWithBytes:((char *)[fileData bytes] + index)length:1];
+                    index += 1;
 
-                    do {
-                        byteData = [NSData dataWithBytes:((char *)[fileData bytes] + index)length:1];
-                        index += 1;
+                    unsigned char imageBlockSize;
+                    [byteData getBytes:&imageBlockSize length:1];
 
-                        unsigned char imageBlockSize;
-                        [byteData getBytes:&imageBlockSize length:1];
+                    NSData *block = [NSData dataWithBytes:((char *)[fileData bytes] + index)length:imageBlockSize];
+                    index += imageBlockSize;
 
-                        NSData *block = [NSData dataWithBytes:((char *)[fileData bytes] + index)length:imageBlockSize];
-                        index += imageBlockSize;
+                    NSData *singleByte;
+                    unsigned char singleChar = '\0';
 
-                        NSLog(@"block:%@", block);
+                    unsigned int k;
 
-                        byteData = [NSData dataWithBytes:((char *)[fileData bytes] + index)length:1];
-                        if (compareByte(byteData, @"<00>")) {
-                            index++;
-                            break;
+                    int blockStep = 0;
+
+                    NSLog(@"block:%@, size:%d", block, imageBlockSize);
+
+                    for (blockStep = 0; blockStep < imageBlockSize;) {
+                        newCode = 0;
+                        for (int i = 1; i <= codeSizeLimit; i++) {
+                            if (i == 1) {
+                                singleByte = [NSData dataWithBytes:((char *)[block bytes] + blockStep)length:1];
+
+                                [singleByte getBytes:&singleChar length:1];
+
+                                NSLog(@"step:%d, %d, %@", (singleChar >> step) & 0x1, step, byteData);
+                                newCode = (singleChar >> step) & 0x1;
+
+                            } else {
+                                NSLog(@"step:%d, %d, %@", (singleChar >> step) & 0x1, step, byteData);
+                                newCode |= ((singleChar >> step) & 0x1) << (i - 1);
+                            }
+
+                            if (step == 7) {
+                                NSLog(@"next");
+                                blockStep++;
+                                singleByte = [NSData dataWithBytes:((char *)[block bytes] + blockStep)length:1];
+
+                                if (singleByte == nil) break;
+
+                                [singleByte getBytes:&singleChar length:1];
+                                step = 0;
+                            } else {
+                                step++;
+                            }
+
+                            if (oldCode == 65535) {
+                                oldCode = newCode;
+                            }
                         }
-                    } while (true);
 
-                    //                    for (blockStep = 0; blockStep < imageBlockSize;) {
-                    //                        unsigned char ii;
-                    //
-                    //                        newCode = 0;
-                    //                        for (int i = 1; i <= codeSizeLimit; i++) {
-                    //                            if (i == 1) {
-                    //                                byteData =
-                    //                                    [NSData dataWithBytes:((char *)[fileData bytes] + blockStep +
-                    //                                    bitIndex)length:1];
-                    //
-                    //                                [byteData getBytes:&ii length:1];
-                    //
-                    //                                NSLog(@"step:%d, %d, %@", (ii >> step) & 0x1, step, byteData);
-                    //                                newCode = (ii >> step) & 0x1;
-                    //
+                        NSLog(@"newCode:%@, %d", [FileParser getBitStringForChar:newCode], newCode);
+
+                        //                        if (newCode == clearCode) continue;
+
+                        BOOL equals = codeTable[@(newCode)] != nil;
+
+                        if (newCode == clearCode) {
+                            NSLog(@"clearCode");
+                        } else if (current == 0) {
+                            [indexStream addObjectsFromArray:codeTable[@(newCode)]];
+                            current = 1;
+                        } else if (newCode == eoi) {
+                            NSLog(@"eoi:%@", [FileParser getBitStringForChar:newCode]);
+                            current = 0;
+                            break;
+                        } else {
+                            if (equals) {
+                                k = (unsigned int)[codeTable[@(newCode)][0] intValue];
+
+                                [indexStream addObjectsFromArray:codeTable[@(newCode)]];
+                                NSArray *oldCodeK = [codeTable[@(oldCode)] arrayByAddingObject:@(k)];
+                                if (oldCodeK) [codeTable setObject:oldCodeK forKey:@(nextCodeTableIndex)];
+                                if (nextCodeTableIndex == (1 << codeSizeLimit) - 1) {
+                                    NSLog(@"nextCodeTableIndex:%d", nextCodeTableIndex);
+                                    codeSizeLimit++;
+                                }
+                                NSLog(@"newCode:%@ equals", [codeTable[@(oldCode)] arrayByAddingObject:@(k)]);
+                                nextCodeTableIndex++;
+                            } else {
+                                k = (unsigned int)[codeTable[@(oldCode)][0] intValue];
+
+                                NSArray *oldCodeK = [codeTable[@(oldCode)] arrayByAddingObject:@(k)];
+                                [indexStream addObjectsFromArray:oldCodeK];
+                                if (oldCodeK) [codeTable setObject:oldCodeK forKey:@(nextCodeTableIndex)];
+                                if (nextCodeTableIndex == (1 << codeSizeLimit) - 1) {
+                                    NSLog(@"nextCodeTableIndex:%d not equals", nextCodeTableIndex);
+                                    codeSizeLimit++;
+                                }
+                                NSLog(@"newCode:%@", oldCodeK);
+
+                                nextCodeTableIndex++;
+                            }
+                        }
+
+                        oldCode = newCode;
+
+                        NSLog(@"imageBlock:%d, data:%@, index:%ld", blockStep, byteData, index);
+                    }
+
+                    byteData = [NSData dataWithBytes:((char *)[fileData bytes] + index)length:1];
+                    if (compareByte(byteData, @"<00>")) {
+                        NSLog(@"indexStream:%@, count:%ld", indexStream, [indexStream count]);
+                        index++;
+                        break;
+                    }
+
+                    if (false) {
+                        if (indexStream && blockCount == 3) {
+                            NSLog(@"indexStream:%@, count:%ld", indexStream, [indexStream count]);
+
+                            NSBitmapImageRep *bitmapRep =
+                                [[NSBitmapImageRep alloc] initWithBitmapDataPlanes:nil
+                                                                        pixelsWide:width
+                                                                        pixelsHigh:height
+                                                                     bitsPerSample:8
+                                                                   samplesPerPixel:3
+                                                                          hasAlpha:NO
+                                                                          isPlanar:NO
+                                                                    colorSpaceName:NSDeviceRGBColorSpace
+                                                                       bytesPerRow:width * 3
+                                                                      bitsPerPixel:24];
+
+                            NSInteger rowBytes = [bitmapRep bytesPerRow];
+                            unsigned char *pix = [bitmapRep bitmapData];
+
+                            NSLog(@"rowBytes:%ld, width:%d, height:%d", rowBytes, width, height);
+
+                            int streamCount = 0;
+
+                            for (int i = 0; i < [indexStream count]; i++) {
+                                int streamIndex = [indexStream[i] intValue];
+
+                                NSValue *rgbValue = streamIndex < [currentColorTable count]
+                                                        ? currentColorTable[[indexStream[i] intValue]]
+                                                        : nil;
+
+                                if (rgbValue) {
+                                    HL_RGB rgb;
+                                    [rgbValue getValue:&rgb];
+
+                                    pix[i * 3] = rgb.red;
+                                    pix[i * 3 + 1] = rgb.green;
+                                    pix[i * 3 + 2] = rgb.blue;
+
+                                } else {
+                                    pix[i * 3] = globalBackgroundColor;
+                                    pix[i * 3 + 1] = globalBackgroundColor;
+                                    pix[i * 3 + 2] = globalBackgroundColor;
+                                }
+                            }
+
+                            NSImage *image = [[NSImage alloc] initWithSize:NSMakeSize(width, height)];
+                            [image addRepresentation:bitmapRep];
+                            return image;
+                        }
+                    }
+
+                    blockCount++;
+                } while (true);
+
+                if (indexStream && imageCount == 1) {
+                    NSLog(@"indexStream:%@, count:%ld", indexStream, [indexStream count]);
+
+                    NSBitmapImageRep *bitmapRep =
+                        [[NSBitmapImageRep alloc] initWithBitmapDataPlanes:nil
+                                                                pixelsWide:width
+                                                                pixelsHigh:height
+                                                             bitsPerSample:8
+                                                           samplesPerPixel:3
+                                                                  hasAlpha:NO
+                                                                  isPlanar:NO
+                                                            colorSpaceName:NSDeviceRGBColorSpace
+                                                               bytesPerRow:width * 3
+                                                              bitsPerPixel:24];
+
+                    NSInteger rowBytes = [bitmapRep bytesPerRow];
+                    unsigned char *pix = [bitmapRep bitmapData];
+
+                    NSLog(@"rowBytes:%ld, width:%d, height:%d", rowBytes, width, height);
+
+                    int streamCount = 0;
+
+                    for (int i = 0; i < [indexStream count]; i++) {
+                        int streamIndex = [indexStream[i] intValue];
+
+                        NSValue *rgbValue = streamIndex < [currentColorTable count]
+                                                ? currentColorTable[[indexStream[i] intValue]]
+                                                : nil;
+
+                        if (rgbValue) {
+                            HL_RGB rgb;
+                            [rgbValue getValue:&rgb];
+
+                            pix[i * 3] = rgb.red;
+                            pix[i * 3 + 1] = rgb.green;
+                            pix[i * 3 + 2] = rgb.blue;
+
+                        } else {
+                            pix[i * 3] = globalBackgroundColor;
+                            pix[i * 3 + 1] = globalBackgroundColor;
+                            pix[i * 3 + 2] = globalBackgroundColor;
+                        }
+                    }
+
+                    //                    if (top > 0 || left > 0 || width < gifWidth || height < gifHeight) {
+                    //                        int total = top * gifWidth;
+                    //                        for (int i = 0; i < gifWidth * gifHeight; i++) {
+                    //                            if (i < total) {
+                    //                                pix[i * 3] = globalBackgroundColor;
+                    //                                pix[i * 3 + 1] = globalBackgroundColor;
+                    //                                pix[i * 3 + 2] = globalBackgroundColor;
                     //                            } else {
-                    //                                NSLog(@"step:%d, %d, %@", (ii >> step) & 0x1, step, byteData);
-                    //                                newCode |= ((ii >> step) & 0x1) << (i - 1);
-                    //                            }
+                    //                                if (i - total >= [indexStream count]) break;
+                    //                                int streamIndex = [indexStream[i - total] intValue];
                     //
-                    //                            if (step == 7) {
-                    //                                NSLog(@"next");
-                    //                                blockStep++;
-                    //                                byteData =
-                    //                                    [NSData dataWithBytes:((char *)[fileData bytes] + blockStep +
-                    //                                    bitIndex)length:1];
+                    //                                if (((i + left) % width) < width && ((i + left) % width) >= left)
+                    //                                {
+                    //                                    NSValue *rgbValue = streamCount < [currentColorTable count]
+                    //                                                            ?
+                    //                                                            currentColorTable[[indexStream[streamCount]
+                    //                                                            intValue]]
+                    //                                                            : nil;
                     //
-                    //                                [byteData getBytes:&ii length:1];
-                    //                                step = 0;
-                    //                            } else {
-                    //                                step++;
-                    //                            }
+                    //                                    streamCount++;
                     //
-                    //                            if (oldCode == 65535) {
-                    //                                oldCode = newCode;
-                    //                            }
-                    //                        }
+                    //                                    HL_RGB rgb;
+                    //                                    [rgbValue getValue:&rgb];
                     //
-                    //                        if (newCode == clearCode) {
-                    //                            NSLog(@"clearCode:%d", newCode);
-                    //                            oldCode = 65535;
-                    //                            //                            [indexStream removeAllObjects];
-                    //                            continue;
-                    //                        }
-                    //
-                    //                        NSLog(@"newCode:%@, %d", [FileParser getBitStringForChar:newCode],
-                    //                        newCode);
-                    //
-                    //                        BOOL equals = codeTable[@(newCode)] != nil;
-                    //
-                    //                        if (current == 0) {
-                    //                            [indexStream addObjectsFromArray:codeTable[@(newCode)]];
-                    //                            current = 1;
-                    //                        } else if (newCode == eoi) {
-                    //                            NSLog(@"eoi:%@", [FileParser getBitStringForChar:newCode]);
-                    //                            break;
-                    //                        } else {
-                    //                            if (equals) {
-                    //                                k = (unsigned char)[codeTable[@(newCode)][0] intValue];
-                    //
-                    //                                [indexStream addObjectsFromArray:codeTable[@(newCode)]];
-                    //                                NSArray *oldCodeK = [codeTable[@(oldCode)]
-                    //                                arrayByAddingObject:@(k)];
-                    //                                if (oldCodeK) [codeTable setObject:oldCodeK
-                    //                                forKey:@(nextCodeTableIndex)];
-                    //                                if (nextCodeTableIndex == (1 << codeSizeLimit) - 1) {
-                    //                                    NSLog(@"nextCodeTableIndex:%d", nextCodeTableIndex);
-                    //                                    codeSizeLimit++;
+                    //                                    pix[i * 3] = rgb.red;
+                    //                                    pix[i * 3 + 1] = rgb.green;
+                    //                                    pix[i * 3 + 2] = rgb.blue;
+                    //                                } else {
+                    //                                    pix[i * 3] = globalBackgroundColor;
+                    //                                    pix[i * 3 + 1] = globalBackgroundColor;
+                    //                                    pix[i * 3 + 2] = globalBackgroundColor;
                     //                                }
-                    //                                NSLog(@"newCode:%@ equals", [codeTable[@(oldCode)]
-                    //                                arrayByAddingObject:@(k)]);
-                    //                                nextCodeTableIndex++;
-                    //                            } else {
-                    //                                k = (unsigned char)[codeTable[@(oldCode)][0] intValue];
-                    //
-                    //                                NSArray *oldCodeK = [codeTable[@(oldCode)]
-                    //                                arrayByAddingObject:@(k)];
-                    //                                [indexStream addObjectsFromArray:oldCodeK];
-                    //                                if (oldCodeK) [codeTable setObject:oldCodeK
-                    //                                forKey:@(nextCodeTableIndex)];
-                    //                                if (nextCodeTableIndex == (1 << codeSizeLimit) - 1) {
-                    //                                    NSLog(@"nextCodeTableIndex:%d not equals",
-                    //                                    nextCodeTableIndex);
-                    //                                    codeSizeLimit++;
-                    //                                }
-                    //                                NSLog(@"newCode:%@", oldCodeK);
-                    //
-                    //                                nextCodeTableIndex++;
                     //                            }
                     //                        }
+                    //                    } else {
+                    //                        for (int i = 0; i < [indexStream count]; i++) {
+                    //                            int streamIndex = [indexStream[i] intValue];
                     //
-                    //                        oldCode = newCode;
+                    //                            NSValue *rgbValue = streamIndex < [currentColorTable count]
+                    //                                                    ? currentColorTable[[indexStream[i] intValue]]
+                    //                                                    : nil;
                     //
-                    //                        NSLog(@"imageBlock:%d, data:%@, index:%ld", blockStep, byteData, index);
-                    //                    }
+                    //                            if (rgbValue) {
+                    //                                HL_RGB rgb;
+                    //                                [rgbValue getValue:&rgb];
                     //
-                    //                    index = bitIndex + blockStep + 1;
-                    //                    byteData = [NSData dataWithBytes:((char *)[fileData bytes] + index)length:1];
-                    //                    if (compareByte(byteData, @"<00>")) {
-                    //                        index++;
+                    //                                pix[i * 3] = rgb.red;
+                    //                                pix[i * 3 + 1] = rgb.green;
+                    //                                pix[i * 3 + 2] = rgb.blue;
+                    //
+                    //                            } else {
+                    //                                pix[i * 3] = globalBackgroundColor;
+                    //                                pix[i * 3 + 1] = globalBackgroundColor;
+                    //                                pix[i * 3 + 2] = globalBackgroundColor;
+                    //                            }
+                    //                        }
                     //                    }
 
-                    NSLog(@"endOfBlock:%@", byteData);
-                } while (!compareByte(byteData, @"<00>"));
-
-                //                if (indexStream && imageCount == 1) {
-                //                    NSLog(@"indexStream:%@, count:%ld", indexStream, [indexStream count]);
-                //
-                //                    NSBitmapImageRep *bitmapRep =
-                //                        [[NSBitmapImageRep alloc] initWithBitmapDataPlanes:nil
-                //                                                                pixelsWide:width
-                //                                                                pixelsHigh:height
-                //                                                             bitsPerSample:8
-                //                                                           samplesPerPixel:3
-                //                                                                  hasAlpha:NO
-                //                                                                  isPlanar:NO
-                //                                                            colorSpaceName:NSDeviceRGBColorSpace
-                //                                                               bytesPerRow:width * 3
-                //                                                              bitsPerPixel:24];
-                //
-                //                    NSInteger rowBytes = [bitmapRep bytesPerRow];
-                //                    unsigned char *pix = [bitmapRep bitmapData];
-                //
-                //                    NSLog(@"rowBytes:%ld, width:%d, height:%d", rowBytes, width, height);
-                //
-                //                    int streamCount = 0;
-                //
-                //                    for (int i = 0; i < [indexStream count]; i++) {
-                //                        int streamIndex = [indexStream[i] intValue];
-                //
-                //                        NSValue *rgbValue = streamIndex < [currentColorTable count]
-                //                                                ? currentColorTable[[indexStream[i] intValue]]
-                //                                                : nil;
-                //
-                //                        if (rgbValue) {
-                //                            HL_RGB rgb;
-                //                            [rgbValue getValue:&rgb];
-                //
-                //                            pix[i * 3] = rgb.red;
-                //                            pix[i * 3 + 1] = rgb.green;
-                //                            pix[i * 3 + 2] = rgb.blue;
-                //
-                //                        } else {
-                //                            pix[i * 3] = globalBackgroundColor;
-                //                            pix[i * 3 + 1] = globalBackgroundColor;
-                //                            pix[i * 3 + 2] = globalBackgroundColor;
-                //                        }
-                //                    }
-                //
-                //                    //                    if (top > 0 || left > 0 || width < gifWidth || height <
-                //                    gifHeight) {
-                //                    //                        int total = top * gifWidth;
-                //                    //                        for (int i = 0; i < gifWidth * gifHeight; i++) {
-                //                    //                            if (i < total) {
-                //                    //                                pix[i * 3] = globalBackgroundColor;
-                //                    //                                pix[i * 3 + 1] = globalBackgroundColor;
-                //                    //                                pix[i * 3 + 2] = globalBackgroundColor;
-                //                    //                            } else {
-                //                    //                                if (i - total >= [indexStream count]) break;
-                //                    //                                int streamIndex = [indexStream[i - total]
-                //                    intValue];
-                //                    //
-                //                    //                                if (((i + left) % width) < width && ((i + left)
-                //                    % width) >= left)
-                //                    //                                {
-                //                    //                                    NSValue *rgbValue = streamCount <
-                //                    [currentColorTable count]
-                //                    //                                                            ?
-                //                    // currentColorTable[[indexStream[streamCount]
-                //                    //                                                            intValue]]
-                //                    //                                                            : nil;
-                //                    //
-                //                    //                                    streamCount++;
-                //                    //
-                //                    //                                    HL_RGB rgb;
-                //                    //                                    [rgbValue getValue:&rgb];
-                //                    //
-                //                    //                                    pix[i * 3] = rgb.red;
-                //                    //                                    pix[i * 3 + 1] = rgb.green;
-                //                    //                                    pix[i * 3 + 2] = rgb.blue;
-                //                    //                                } else {
-                //                    //                                    pix[i * 3] = globalBackgroundColor;
-                //                    //                                    pix[i * 3 + 1] = globalBackgroundColor;
-                //                    //                                    pix[i * 3 + 2] = globalBackgroundColor;
-                //                    //                                }
-                //                    //                            }
-                //                    //                        }
-                //                    //                    } else {
-                //                    //                        for (int i = 0; i < [indexStream count]; i++) {
-                //                    //                            int streamIndex = [indexStream[i] intValue];
-                //                    //
-                //                    //                            NSValue *rgbValue = streamIndex < [currentColorTable
-                //                    count]
-                //                    //                                                    ?
-                //                    currentColorTable[[indexStream[i] intValue]]
-                //                    //                                                    : nil;
-                //                    //
-                //                    //                            if (rgbValue) {
-                //                    //                                HL_RGB rgb;
-                //                    //                                [rgbValue getValue:&rgb];
-                //                    //
-                //                    //                                pix[i * 3] = rgb.red;
-                //                    //                                pix[i * 3 + 1] = rgb.green;
-                //                    //                                pix[i * 3 + 2] = rgb.blue;
-                //                    //
-                //                    //                            } else {
-                //                    //                                pix[i * 3] = globalBackgroundColor;
-                //                    //                                pix[i * 3 + 1] = globalBackgroundColor;
-                //                    //                                pix[i * 3 + 2] = globalBackgroundColor;
-                //                    //                            }
-                //                    //                        }
-                //                    //                    }
-                //
-                //                    NSImage *image = [[NSImage alloc] initWithSize:NSMakeSize(width, height)];
-                //                    [image addRepresentation:bitmapRep];
-                //                    return image;
-                //                }
+                    NSImage *image = [[NSImage alloc] initWithSize:NSMakeSize(width, height)];
+                    [image addRepresentation:bitmapRep];
+                    return image;
+                }
             }
 
             byteData = [NSData dataWithBytes:((char *)[fileData bytes] + index)length:1];
