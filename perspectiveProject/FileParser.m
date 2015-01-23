@@ -161,6 +161,40 @@ typedef struct {
     return nil;
 }
 
+- (NSImage *)parseWebPFileWithPath:(NSString *)path {
+    NSData *fileData = [NSData dataWithContentsOfFile:path];
+    if (fileData) {
+        NSLog(@"fileDataForWebP:%@", fileData);
+
+        NSInteger index = 0;
+        NSUInteger totalBytesCount = [fileData length];
+
+        NSData *byteData = [NSData dataWithBytes:((char *)[fileData bytes] + index)length:4];
+
+        index += 4;
+
+        NSLog(@"header_RIFF:%@", [[NSString alloc] initWithData:byteData encoding:NSUTF8StringEncoding]);
+
+        byteData = [NSData dataWithBytes:((char *)[fileData bytes] + index)length:4];
+
+        index += 4;
+
+        int fileLength;
+
+        [byteData getBytes:&fileLength length:4];
+
+        NSLog(@"file_size:%dKB", fileLength / 1000);
+
+        byteData = [NSData dataWithBytes:((char *)[fileData bytes] + index)length:4];
+
+        index += 4;
+
+        NSLog(@"header_WEBP:%@", [[NSString alloc] initWithData:byteData encoding:NSUTF8StringEncoding]);
+    }
+
+    return nil;
+}
+
 - (NSImage *)parseJPEGFileWithPath:(NSString *)path {
     NSData *fileData = [NSData dataWithContentsOfFile:path];
     if (fileData) {
@@ -905,10 +939,10 @@ typedef struct {
     return [NSData dataWithBytes:cBuf2 length:totalLength];
 }
 
-+ (NSString *)getBitStringForChar:(char)value {
++ (NSString *)getBitStringForChar:(short)value {
     NSString *bits = @"";
 
-    for (int i = 0; i < 8; i++) {
+    for (int i = 0; i < 16; i++) {
         bits = [NSString stringWithFormat:@"%i%@", value & (1 << i) ? 1 : 0, bits];
     }
 

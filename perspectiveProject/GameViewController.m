@@ -24,6 +24,8 @@
     NSImage *image = [parser parseGIFFileWithPath:@"/Users/caifangmao/Downloads/gif/ddd.gif"];
 
     [self.testImage setImage:image];
+
+    //    [parser parseWebPFileWithPath:@"/Users/caifangmao/Downloads/image.webp"];
     /*
      // create a new scene
      SCNScene *scene = [SCNScene sceneNamed:@"art.scnassets/ship.dae"];
