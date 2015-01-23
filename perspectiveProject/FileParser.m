@@ -431,8 +431,8 @@ typedef struct {
 
                 [globalColorTable addObject:[NSValue valueWithBytes:&rgb objCType:@encode(HL_RGB)]];
 
-                //                NSLog(@"%@", colorString);
-                //                NSLog(@"index:%d", i);
+                NSLog(@"%@", colorString);
+                NSLog(@"index:%d", i);
             }
         }
 
@@ -671,11 +671,11 @@ typedef struct {
 
                                 [singleByte getBytes:&singleChar length:1];
 
-                                NSLog(@"step:%d, %d, %@", (singleChar >> step) & 0x1, step, byteData);
+                                NSLog(@"step:%d, %d, %@", (singleChar >> step) & 0x1, step, singleByte);
                                 newCode = (singleChar >> step) & 0x1;
 
                             } else {
-                                NSLog(@"step:%d, %d, %@", (singleChar >> step) & 0x1, step, byteData);
+                                NSLog(@"step:%d, %d, %@", (singleChar >> step) & 0x1, step, singleByte);
                                 newCode |= ((singleChar >> step) & 0x1) << (i - 1);
                             }
 
@@ -753,8 +753,8 @@ typedef struct {
                         break;
                     }
 
-                    if (false) {
-                        if (indexStream && blockCount == 3) {
+                    if (true) {
+                        if (indexStream && blockCount == 1) {
                             NSLog(@"indexStream:%@, count:%ld", indexStream, [indexStream count]);
 
                             NSBitmapImageRep *bitmapRep =
