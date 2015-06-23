@@ -90,7 +90,7 @@ typedef NS_ENUM(NSInteger, RotateAxis) { RotateAxisX, RotateAxisY, RotateAxisZ }
     if (!_object) {
         parser = [[FileParser alloc] init];
         parser.delegate = self;
-        _object = [parser parse3DSFileWithPath:@"/Users/7heaven/Downloads/Mirror.3DS"];
+//        _object = [parser parseSTLFileWithPath:@"/Users/caifangmao/Downloads/PS3_Stand_Micro.stl"];
         //        [parser parseJPEGFileWithPath:@"/Users/7heaven/Downloads/frog.jpg"];
     }
 
@@ -173,8 +173,16 @@ typedef NS_ENUM(NSInteger, RotateAxis) { RotateAxisX, RotateAxisY, RotateAxisZ }
             NSDictionary *crossProduct = [self crossProWithV0:Vector3DMake(rv1.x - rv0.x, rv1.y - rv0.y, rv1.z - rv0.z)
                                                            v1:Vector3DMake(rv2.x - rv0.x, rv2.y - rv0.y, rv2.z - rv0.z)
                                                        center:centerPoint];
+            
+            Vector3D *newNor = [self rotateVector:triangle.normalVector
+                                           radian:(_tx - centerPoint.x) / 200 + _previousRadianX
+                                             axis:RotateAxisY];
+            newNor = [self rotateVector:newNor
+                                 radian:(_ty - centerPoint.y) / 200 + _previousRadianY axis:RotateAxisX];
+            
+            CGPoint nor2D = [self perspective:newNor];
 
-            if ([crossProduct[@"z"] floatValue] > 0) continue;
+            if ([crossProduct[@"z"] floatValue] < 0) continue;
 
             //            CGPoint vcross0 = CGPointMake(v2d1.x - v2d0.x, v2d1.y - v2d0.y);
             //            CGPoint vcross1 = CGPointMake(v2d2.x - v2d0.x, v2d2.y - v2d0.y);
@@ -189,6 +197,10 @@ typedef NS_ENUM(NSInteger, RotateAxis) { RotateAxisX, RotateAxisY, RotateAxisZ }
 
             drawTriangle(v2d0, v2d1, v2d2, context,
                          [NSColor colorWithCalibratedRed:1.0F - cross green:1.0F - cross blue:1.0F - cross alpha:1.0F]);
+            
+            CGPoint nor0 = CGPointMake(v2d0.x + (nor2D.x), v2d0.y + (nor2D.y));
+            
+//            line(v2d0, nor0, context, color(@"0xFFFF0000"));
 
             //            line(v2d0, v2d1, context, color(@"0xFFFF0000"));
             //            line(v2d1, v2d2, context, color(@"0xFFFF0000"));

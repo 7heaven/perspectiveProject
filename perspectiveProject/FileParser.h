@@ -23,6 +23,7 @@
 
 @property (weak, nonatomic) id<FileParserDelegate> delegate;
 
+- (Object3DEntity *) parseSTLFileWithPath:(NSString *) path;
 - (Object3DEntity *)parse3DSFileWithPath:(NSString *)path;
 - (NSImage *)parseJPEGFileWithPath:(NSString *)path;
 - (NSImage *)parseWebPFileWithPath:(NSString *)path;

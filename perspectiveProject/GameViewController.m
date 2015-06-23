@@ -20,10 +20,14 @@
     [self.testImage setImageScaling:NSImageScaleProportionallyDown];
 
     FileParser *parser = [[FileParser alloc] init];
+    
+//    [parser parseSTLFileWithPath:@"/Users/caifangmao/Downloads/PS3_Stand_Micro.stl"];
 
     NSImage *image = [parser parseGIFFileWithPath:@"/Users/caifangmao/Downloads/gif/ddd.gif"];
 
     [self.testImage setImage:image];
+    
+//    [parser parseJPEGFileWithPath:@"/Users/caifangmao/Downloads/Channel_digital_image_CMYK_color.jpg"];
 
     //    [parser parseWebPFileWithPath:@"/Users/caifangmao/Downloads/image.webp"];
     /*

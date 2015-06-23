@@ -10,6 +10,7 @@
 
 #define Triangle3DMake(a, b, c) [[Triangle3D alloc] initWithV0:a v1:b v2:c]
 #define TSimple3DMake(a, b, c) [[Triangle3D alloc] initWithSimpleV0:a v1:b v2:c]
+#define TSimple3DNormalMake(a, b, c, nor) [[Triangle3D alloc] initWithSimpleV0:a v1:b v2:c normal:nor]
 
 @class Vector3D;
 
@@ -35,5 +36,6 @@
 
 - (instancetype)initWithV0:(Vector3D *)v0 v1:(Vector3D *)v1 v2:(Vector3D *)v2;
 - (instancetype)initWithSimpleV0:(int)v0 v1:(int)v1 v2:(int)v2;
+- (instancetype)initWithSimpleV0:(int) v0 v1:(int) v1 v2:(int) v2 normal:(Vector3D *) normal;
 
 @end

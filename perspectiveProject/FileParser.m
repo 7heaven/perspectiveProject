@@ -21,6 +21,132 @@ typedef struct {
 
 @implementation FileParser
 
+- (Object3DEntity *) parseSTLFileWithPath:(NSString *)path{
+    
+    NSLog(@"start parse STL file");
+    
+    NSData *fileData = [NSData dataWithContentsOfFile:path];
+    
+    NSLog(@"entire data:%@", fileData);
+    
+    if(fileData){
+        NSString *header = @"";
+        for(int i = 0; i < 5; i++){
+            char c;
+            NSData *b = [NSData dataWithBytes:((char *)[fileData bytes] + i) length:1];
+            
+            [b getBytes:&c length:sizeof(c)];
+            
+            header = [NSString stringWithFormat:@"%@%c", header, c];
+        }
+        
+        NSLog(@"header:%@", header);
+        if(header && [header isEqualToString:@"solid"]){
+            Object3DEntity *object3D = [[Object3DEntity alloc] init];
+            
+            NSString *fileString = [[NSString alloc] initWithData:fileData encoding:NSUTF8StringEncoding];
+            
+            NSArray *fileStringArray=[fileString componentsSeparatedByString:@"\n"];
+            
+            int i = 0;
+            while(i < fileStringArray.count){
+                NSString *line = fileStringArray[i];
+                
+                if([line hasPrefix:@"solid"]){
+                }else if([line containsString:@"facet normal"]){
+                    NSLog(@"normal:%@", line);
+                    
+                    NSArray *normalArray = [[line stringByTrimmingCharactersInSet:
+                                             [NSCharacterSet whitespaceCharacterSet]] componentsSeparatedByString:@" "];
+                    
+                    i++;
+                    line = fileStringArray[i];
+                    if([line containsString:@"outer loop"]){
+                        i++;
+                        line = fileStringArray[i];
+                        while(![line containsString:@"endloop"]){
+                            
+                            NSArray *vertexArray = [[line stringByTrimmingCharactersInSet:
+                                                     [NSCharacterSet whitespaceCharacterSet]] componentsSeparatedByString:@" "];
+                            
+                            if(vertexArray.count == 4){
+                                float x = [vertexArray[1] floatValue] * 3;
+                                float y = [vertexArray[2] floatValue] * 3;
+                                float z = [vertexArray[3] floatValue] * 3;
+                                
+                                [object3D.vectorArray addObject:Vector3DMake(x, y, z)];
+                            }
+                            
+                            i++;
+                            line = fileStringArray[i];
+                        }
+                        
+                        [object3D.triangleArray addObject:TSimple3DNormalMake((int) (object3D.vectorArray.count - 1), (int) (object3D.vectorArray.count - 2), (int) (object3D.vectorArray.count - 3), Vector3DMake([normalArray[1] floatValue], [normalArray[2] floatValue], [normalArray[3] floatValue]))];
+                    }
+                }
+                
+                i++;
+            }
+            
+            return object3D;
+            
+        }else{
+            Object3DEntity *object3D = [[Object3DEntity alloc] init];
+            
+            NSUInteger totalBytesCount = [fileData length];
+            
+            NSInteger index = 0;
+            
+            NSData *byteData = [NSData dataWithBytes:((char *)[fileData bytes] + index) length:80];
+            
+            index += 80;
+            
+            byteData = [NSData dataWithBytes:((char *)[fileData bytes] + index) length:4];
+            
+            index += 4;
+            
+            unsigned long totalLength;
+            
+            [byteData getBytes:&totalLength length:sizeof(totalLength)];
+            
+            NSLog(@"totalVector:%lu", totalLength);
+            
+            while(index < totalBytesCount){
+                NSData *facetData = [NSData dataWithBytes:((char *)[fileData bytes] + index) length:50];
+                
+                int facetIndex = 0;
+                
+                float i,j,k;
+                
+                NSData *tempData = [NSData dataWithBytes:((char *)[facetData bytes] + facetIndex) length:4];
+                
+                facetIndex += 4;
+                
+                [tempData getBytes:&i length:sizeof(i)];
+                
+                tempData = [NSData dataWithBytes:((char *)[facetData bytes] + facetIndex) length:4];
+                
+                facetIndex += 4;
+                
+                [tempData getBytes:&j length:sizeof(j)];
+                
+                tempData = [NSData dataWithBytes:((char *)[facetData bytes] + facetIndex) length:4];
+                
+                facetIndex += 4;
+                
+                [tempData getBytes:&k length:sizeof(k)];
+                
+                NSLog(@"normal_i:%.f,j:%.f,k:%.f", i, j, k);
+                
+                
+                index += 50;
+            }
+        }
+    }
+    
+    return nil;
+}
+
 - (Object3DEntity *)parse3DSFileWithPath:(NSString *)path {
     NSData *fileData = [NSData dataWithContentsOfFile:path];
     if (fileData) {
@@ -610,7 +736,7 @@ typedef struct {
                 char LZW_MiniCS;
                 [byteData getBytes:&LZW_MiniCS length:1];
 
-                NSLog(@"LZM:%@", byteData);
+                NSLog(@"LZW:%@", byteData);
 
                 float lzwSize = 1 << LZW_MiniCS;
                 NSMutableDictionary *codeTable = [[NSMutableDictionary alloc] init];
@@ -633,20 +759,20 @@ typedef struct {
                 unsigned int oldCode = 65535;
                 unsigned int newCode;
 
-                int step = 0;
-
                 int codeSizeLimit = LZW_MiniCS + 1;
 
-                unsigned char codeMask = (1 << (codeSizeLimit + 1)) - 1;
+//                unsigned char codeMask = (1 << (codeSizeLimit + 1)) - 1;
 
                 NSMutableArray *indexStream = [[NSMutableArray alloc] init];
 
                 int current = 0;
+                int step = 0;
 
                 int blockCount = 0;
                 do {
+//                    int step = 0;
                     byteData = [NSData dataWithBytes:((char *)[fileData bytes] + index)length:1];
-                    index += 1;
+                    index ++;
 
                     unsigned char imageBlockSize;
                     [byteData getBytes:&imageBlockSize length:1];
@@ -699,12 +825,16 @@ typedef struct {
 
                         NSLog(@"newCode:%@, %d", [FileParser getBitStringForChar:newCode], newCode);
 
-                        //                        if (newCode == clearCode) continue;
+//                                                if (newCode == clearCode) continue;
 
                         BOOL equals = codeTable[@(newCode)] != nil;
 
                         if (newCode == clearCode) {
                             NSLog(@"clearCode");
+                            if(codeSizeLimit > 12){
+                                codeSizeLimit = LZW_MiniCS + 1;
+                            }
+                            continue;
                         } else if (current == 0) {
                             [indexStream addObjectsFromArray:codeTable[@(newCode)]];
                             current = 1;
@@ -723,7 +853,7 @@ typedef struct {
                                     NSLog(@"nextCodeTableIndex:%d", nextCodeTableIndex);
                                     codeSizeLimit++;
                                 }
-                                NSLog(@"newCode:%@ equals", [codeTable[@(oldCode)] arrayByAddingObject:@(k)]);
+                                NSLog(@"newCode:%@ equals, limit:%d", [codeTable[@(oldCode)] arrayByAddingObject:@(k)], codeSizeLimit);
                                 nextCodeTableIndex++;
                             } else {
                                 k = (unsigned int)[codeTable[@(oldCode)][0] intValue];
@@ -735,7 +865,7 @@ typedef struct {
                                     NSLog(@"nextCodeTableIndex:%d not equals", nextCodeTableIndex);
                                     codeSizeLimit++;
                                 }
-                                NSLog(@"newCode:%@", oldCodeK);
+                                NSLog(@"newCode:%@, limit:%d", oldCodeK, codeSizeLimit);
 
                                 nextCodeTableIndex++;
                             }
@@ -754,7 +884,7 @@ typedef struct {
                     }
 
                     if (true) {
-                        if (indexStream && blockCount == 1) {
+                        if (indexStream && blockCount == 2) {
                             NSLog(@"indexStream:%@, count:%ld", indexStream, [indexStream count]);
 
                             NSBitmapImageRep *bitmapRep =

@@ -29,4 +29,12 @@
     return self;
 }
 
+- (instancetype)initWithSimpleV0:(int) v0 v1:(int) v1 v2:(int) v2 normal:(Vector3D *) normal{
+    if(self = [self initWithSimpleV0:v0 v1:v1 v2:v2]){
+        self.normalVector = normal;
+    }
+    
+    return self;
+}
+
 @end

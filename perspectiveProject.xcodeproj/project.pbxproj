@@ -22,7 +22,7 @@
 		9AA364111A0383B300CABF65 /* Triangle3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 9AA364101A0383B300CABF65 /* Triangle3D.m */; };
 		9AA364141A038D5E00CABF65 /* BoxObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 9AA364131A038D5E00CABF65 /* BoxObject.m */; };
 		F616083B1A5596E900B848FD /* ColorUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = F616083A1A5596E900B848FD /* ColorUtil.m */; };
-		F6DCBCC91A57058B009482AD /* GIF.m in Sources */ = {isa = PBXBuildFile; fileRef = F6DCBCC81A57058B009482AD /* GIF.m */; };
+		F6DCBCC91A57058B009482AD /* GIFDecoder.mm in Sources */ = {isa = PBXBuildFile; fileRef = F6DCBCC81A57058B009482AD /* GIFDecoder.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -63,11 +63,13 @@
 		9AA364101A0383B300CABF65 /* Triangle3D.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Triangle3D.m; sourceTree = "<group>"; };
 		9AA364121A038D5E00CABF65 /* BoxObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BoxObject.h; sourceTree = "<group>"; };
 		9AA364131A038D5E00CABF65 /* BoxObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BoxObject.m; sourceTree = "<group>"; };
+		9ACFEA9C1B391AB80072331C /* GIFProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GIFProtocol.h; sourceTree = "<group>"; };
+		9ACFEA9D1B391BEB0072331C /* GIF.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GIF.h; sourceTree = "<group>"; };
 		F61608391A5596E900B848FD /* ColorUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ColorUtil.h; sourceTree = "<group>"; };
 		F616083A1A5596E900B848FD /* ColorUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ColorUtil.m; sourceTree = "<group>"; };
 		F616083C1A55A9BA00B848FD /* Geometry3D.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Geometry3D.h; sourceTree = "<group>"; };
-		F6DCBCC71A57058B009482AD /* GIF.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GIF.h; sourceTree = "<group>"; };
-		F6DCBCC81A57058B009482AD /* GIF.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GIF.m; sourceTree = "<group>"; };
+		F6DCBCC71A57058B009482AD /* GIFDecoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GIFDecoder.h; sourceTree = "<group>"; };
+		F6DCBCC81A57058B009482AD /* GIFDecoder.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GIFDecoder.mm; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -109,6 +111,7 @@
 		9A2820451A008267003991A4 /* perspectiveProject */ = {
 			isa = PBXGroup;
 			children = (
+				9ACFEA9A1B391A9A0072331C /* gif */,
 				9A2820481A008267003991A4 /* AppDelegate.h */,
 				9A2820491A008267003991A4 /* AppDelegate.m */,
 				9A28206E1A00BB5A003991A4 /* StageView.h */,
@@ -134,8 +137,6 @@
 				F61608391A5596E900B848FD /* ColorUtil.h */,
 				F616083A1A5596E900B848FD /* ColorUtil.m */,
 				F616083C1A55A9BA00B848FD /* Geometry3D.h */,
-				F6DCBCC71A57058B009482AD /* GIF.h */,
-				F6DCBCC81A57058B009482AD /* GIF.m */,
 			);
 			path = perspectiveProject;
 			sourceTree = "<group>";
@@ -164,6 +165,25 @@
 				9A2820631A008267003991A4 /* Info.plist */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		9ACFEA9A1B391A9A0072331C /* gif */ = {
+			isa = PBXGroup;
+			children = (
+				9ACFEA9B1B391AA70072331C /* protocol */,
+				F6DCBCC71A57058B009482AD /* GIFDecoder.h */,
+				F6DCBCC81A57058B009482AD /* GIFDecoder.mm */,
+				9ACFEA9D1B391BEB0072331C /* GIF.h */,
+			);
+			name = gif;
+			sourceTree = "<group>";
+		};
+		9ACFEA9B1B391AA70072331C /* protocol */ = {
+			isa = PBXGroup;
+			children = (
+				9ACFEA9C1B391AB80072331C /* GIFProtocol.h */,
+			);
+			name = protocol;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -272,7 +292,7 @@
 				9A2820701A00BB5A003991A4 /* StageView.m in Sources */,
 				F616083B1A5596E900B848FD /* ColorUtil.m in Sources */,
 				9AA364111A0383B300CABF65 /* Triangle3D.m in Sources */,
-				F6DCBCC91A57058B009482AD /* GIF.m in Sources */,
+				F6DCBCC91A57058B009482AD /* GIFDecoder.mm in Sources */,
 				9A28204F1A008267003991A4 /* GameView.m in Sources */,
 				9AA364141A038D5E00CABF65 /* BoxObject.m in Sources */,
 				9A28204C1A008267003991A4 /* main.m in Sources */,
