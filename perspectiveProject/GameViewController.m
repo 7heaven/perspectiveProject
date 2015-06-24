@@ -8,6 +8,12 @@
 
 #import "GameViewController.h"
 
+@interface GameViewController(){
+    NSArray *_images;
+    int playCount;
+}
+@end
+
 @implementation GameViewController
 
 - (void)onRateCalculated:(int)ratePerSecond {
@@ -17,15 +23,24 @@
 - (void)awakeFromNib {
     self.stageView.delegate = self;
 
-    [self.testImage setImageScaling:NSImageScaleProportionallyDown];
+    [self.testImage setImageScaling:NSImageScaleProportionallyUpOrDown];
 
     FileParser *parser = [[FileParser alloc] init];
     
 //    [parser parseSTLFileWithPath:@"/Users/caifangmao/Downloads/PS3_Stand_Micro.stl"];
 
-    NSImage *image = [parser parseGIFFileWithPath:@"/Users/caifangmao/Downloads/gif/ddd.gif"];
+    _images = [parser parseGIFFileWithPath:@"/Users/caifangmao/Downloads/gif/132.gif"];
 
-    [self.testImage setImage:image];
+    if(_images.count == 1){
+        [self.testImage setImage:_images[0]];
+    }else{
+        playCount = 0;
+        [NSTimer scheduledTimerWithTimeInterval:0.1
+                                         target:self
+                                       selector:@selector(imagePlay)
+                                       userInfo:nil
+                                        repeats:YES];
+    }
     
 //    [parser parseJPEGFileWithPath:@"/Users/caifangmao/Downloads/Channel_digital_image_CMYK_color.jpg"];
 
@@ -78,6 +93,14 @@
      // configure the view
      self.gameView.backgroundColor = [NSColor blackColor];
      */
+}
+
+- (void) imagePlay{
+    if(_images && _images.count > 1){
+        [self.testImage setImage:_images[playCount++]];
+        
+        if(playCount >= _images.count) playCount = 0;
+    }
 }
 
 @end

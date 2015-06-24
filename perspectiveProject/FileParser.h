@@ -27,6 +27,6 @@
 - (Object3DEntity *)parse3DSFileWithPath:(NSString *)path;
 - (NSImage *)parseJPEGFileWithPath:(NSString *)path;
 - (NSImage *)parseWebPFileWithPath:(NSString *)path;
-- (NSImage *)parseGIFFileWithPath:(NSString *)path;
+- (NSArray *)parseGIFFileWithPath:(NSString *)path;
 
 @end
