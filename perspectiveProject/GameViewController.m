@@ -29,7 +29,7 @@
     
 //    [parser parseSTLFileWithPath:@"/Users/caifangmao/Downloads/PS3_Stand_Micro.stl"];
 
-    _images = [parser parseGIFFileWithPath:@"/Users/caifangmao/Downloads/gif/132.gif"];
+    _images = [parser parseGIFFileWithPath:@"/Users/caifangmao/Downloads/gif/finger.gif"];
 
     if(_images.count == 1){
         [self.testImage setImage:_images[0]];
