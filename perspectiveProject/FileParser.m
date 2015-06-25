@@ -572,6 +572,7 @@ typedef struct {
         ;
 
         int imageCount = 0;
+        int delay = 0;
 
         while (index < totalBytesCount) {
             NSLog(@"byteData:%@", byteData);
@@ -601,16 +602,28 @@ typedef struct {
                     
                     BOOL isTransparentFlag = (localPackedField & 0x1) > 0;
                     
-                    index += size - 1;
+                    index++;
+                    
+                    byteData = [NSData dataWithBytes:((char *) [fileData bytes] + index) length:2];
+                    
+                    [byteData getBytes:&delay length:2];
+                    
+                    NSLog(@"delay:%d, rawData:%@", delay, byteData);
+                    
+                    index += 2;
 
-                    byteData = [NSData dataWithBytes:((char *)[fileData bytes] + index)length:size];
+                    byteData = [NSData dataWithBytes:((char *)[fileData bytes] + index)length:1];
                     
-                    char content[size - 1];
+                    char content;
                     
-                    [byteData getBytes:&content length:size - 1];
+                    [byteData getBytes:&content length:1];
+                    
+                    
+                    
+                    
                     
                     if(isTransparentFlag){
-                        transparentColorIndex = content[3];
+                        transparentColorIndex = content;
                     }
 
                     index ++;
@@ -1092,7 +1105,10 @@ typedef struct {
 
                     NSImage *image = [[NSImage alloc] initWithSize:NSMakeSize(gifWidth, gifHeight)];
                     [image addRepresentation:bitmapRep];
-                    [resultImages addObject:image];
+                    [resultImages addObject:@{
+                                              @"delay" : @(delay),
+                                              @"image" : image
+                                              }];
                 }
                 
                 preIndexStream = indexStream;

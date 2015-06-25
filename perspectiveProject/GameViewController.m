@@ -29,17 +29,19 @@
     
 //    [parser parseSTLFileWithPath:@"/Users/caifangmao/Downloads/PS3_Stand_Micro.stl"];
 
-    _images = [parser parseGIFFileWithPath:@"/Users/caifangmao/Downloads/gif/finger.gif"];
+    _images = [parser parseGIFFileWithPath:@"/Users/caifangmao/Downloads/gif/132.gif"];
 
     if(_images.count == 1){
-        [self.testImage setImage:_images[0]];
+        [self.testImage setImage:_images[0][@"image"]];
     }else{
         playCount = 0;
-        [NSTimer scheduledTimerWithTimeInterval:0.1
-                                         target:self
-                                       selector:@selector(imagePlay)
-                                       userInfo:nil
-                                        repeats:YES];
+//        [NSTimer scheduledTimerWithTimeInterval:0.1
+//                                         target:self
+//                                       selector:@selector(imagePlay)
+//                                       userInfo:nil
+//                                        repeats:YES];
+        
+        [self imagePlay];
     }
     
 //    [parser parseJPEGFileWithPath:@"/Users/caifangmao/Downloads/Channel_digital_image_CMYK_color.jpg"];
@@ -96,11 +98,15 @@
 }
 
 - (void) imagePlay{
+    int delay;
     if(_images && _images.count > 1){
-        [self.testImage setImage:_images[playCount++]];
+        delay = [_images[playCount][@"delay"] intValue];
+        [self.testImage setImage:_images[playCount++][@"image"]];
         
         if(playCount >= _images.count) playCount = 0;
     }
+    
+    [self performSelector:@selector(imagePlay) withObject:self afterDelay:(float) delay / (float) 100];
 }
 
 @end
