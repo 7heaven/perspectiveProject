@@ -582,108 +582,255 @@ typedef struct {
             if (compareByte(byteData, @"<21>")) {
                 byteData = [NSData dataWithBytes:((char *)[fileData bytes] + index)length:1];
                 index += 1;
-                if (compareByte(byteData, @"<f9>")) {
-                    NSLog(@"Graphics Control Extension");
-                    byteData = [NSData dataWithBytes:((char *)[fileData bytes] + index)length:1];
-
-                    index += 1;
-
-                    unsigned char size;
-
-                    [byteData getBytes:&size length:1];
-
-                    NSLog(@"size:%d", size);
-                    
-                    byteData = [NSData dataWithBytes:((char *) [fileData bytes] + index) length:1];
-                    
-                    char localPackedField;
-                    
-                    [byteData getBytes:&localPackedField length:1];
-                    
-                    BOOL isTransparentFlag = (localPackedField & 0x1) > 0;
-                    
-                    index++;
-                    
-                    byteData = [NSData dataWithBytes:((char *) [fileData bytes] + index) length:2];
-                    
-                    [byteData getBytes:&delay length:2];
-                    
-                    NSLog(@"delay:%d, rawData:%@", delay, byteData);
-                    
-                    index += 2;
-
-                    byteData = [NSData dataWithBytes:((char *)[fileData bytes] + index)length:1];
-                    
-                    char content;
-                    
-                    [byteData getBytes:&content length:1];
-                    
-                    
-                    
-                    
-                    
-                    if(isTransparentFlag){
-                        transparentColorIndex = content;
+                
+                short extLabel;
+                [byteData getBytes:&extLabel length:sizeof(short)];
+                
+                switch(extLabel){
+                    case 0xf9:{
+                        NSLog(@"Graphics Control Extension");
+                        byteData = [NSData dataWithBytes:((char *)[fileData bytes] + index)length:1];
+                        
+                        index += 1;
+                        
+                        unsigned char size;
+                        
+                        [byteData getBytes:&size length:1];
+                        
+                        NSLog(@"size:%d", size);
+                        
+                        byteData = [NSData dataWithBytes:((char *) [fileData bytes] + index) length:1];
+                        
+                        char localPackedField;
+                        
+                        [byteData getBytes:&localPackedField length:1];
+                        
+                        BOOL isTransparentFlag = (localPackedField & 0x1) > 0;
+                        
+                        index++;
+                        
+                        byteData = [NSData dataWithBytes:((char *) [fileData bytes] + index) length:2];
+                        
+                        [byteData getBytes:&delay length:2];
+                        
+                        NSLog(@"delay:%d, rawData:%@", delay, byteData);
+                        
+                        index += 2;
+                        
+                        byteData = [NSData dataWithBytes:((char *)[fileData bytes] + index)length:1];
+                        
+                        char content;
+                        
+                        [byteData getBytes:&content length:1];
+                        
+                        
+                        
+                        
+                        
+                        if(isTransparentFlag){
+                            transparentColorIndex = content;
+                        }
+                        
+                        index ++;
+                        
+                        NSLog(@"content:%@", byteData);
+                        
+                        break;
                     }
-
-                    index ++;
-
-                    NSLog(@"content:%@", byteData);
-                }
-
-                if (compareByte(byteData, @"<fe>")) {
-                    byteData = [NSData dataWithBytes:((char *)[fileData bytes] + index)length:1];
-                    index += 1;
-
-                    while (compareByte(byteData, @"<00>")) {
-                        NSLog(@"Comment Extension:%@", byteData);
-
+                    case 0xfe:{
                         byteData = [NSData dataWithBytes:((char *)[fileData bytes] + index)length:1];
                         index += 1;
+                        
+                        while (!compareByte(byteData, @"<00>")) {
+                            NSLog(@"Comment Extension:%@", byteData);
+                            
+                            byteData = [NSData dataWithBytes:((char *)[fileData bytes] + index)length:1];
+                            index += 1;
+                        }
+                        break;
                     }
-                }
-
-                if (compareByte(byteData, @"<ff>")) {
-                    NSLog(@"Application Extension Block");
-                    byteData = [NSData dataWithBytes:((char *)[fileData bytes] + index)length:1];
-                    index += 1;
-
-                    unsigned char blockSize;
-                    [byteData getBytes:&blockSize length:1];
-
-                    byteData = [NSData dataWithBytes:((char *)[fileData bytes] + index)length:8];
-                    index += 8;
-
-                    NSLog(@"application identifier:%@",
-                          [[NSString alloc] initWithData:byteData encoding:NSUTF8StringEncoding]);
-
-                    byteData = [NSData dataWithBytes:((char *)[fileData bytes] + index)length:3];
-                    index += 3;
-
-                    NSLog(@"application Authentication Code:%@",
-                          [[NSString alloc] initWithData:byteData encoding:NSUTF8StringEncoding]);
-
-                    byteData = [NSData dataWithBytes:((char *)[fileData bytes] + index)length:1];
-                    index++;
-
-                    unsigned char customBlockSize;
-                    [byteData getBytes:&customBlockSize length:1];
-
-                    NSLog(@"customBlockSize:%d, ori:%@", customBlockSize, byteData);
-
-                    for (int i = 0; i < customBlockSize; i++) {
+                    case 0xff:{
+                        NSLog(@"Application Extension Block");
                         byteData = [NSData dataWithBytes:((char *)[fileData bytes] + index)length:1];
                         index += 1;
-
-                        NSLog(@"custom block:%@", byteData);
+                        
+                        unsigned char blockSize;
+                        [byteData getBytes:&blockSize length:1];
+                        
+                        byteData = [NSData dataWithBytes:((char *)[fileData bytes] + index)length:8];
+                        index += 8;
+                        
+                        NSLog(@"application identifier:%@",
+                              [[NSString alloc] initWithData:byteData encoding:NSUTF8StringEncoding]);
+                        
+                        byteData = [NSData dataWithBytes:((char *)[fileData bytes] + index)length:3];
+                        index += 3;
+                        
+                        NSLog(@"application Authentication Code:%@",
+                              [[NSString alloc] initWithData:byteData encoding:NSUTF8StringEncoding]);
+                        
+                        byteData = [NSData dataWithBytes:((char *)[fileData bytes] + index)length:1];
+                        index++;
+                        
+                        unsigned char customBlockSize;
+                        [byteData getBytes:&customBlockSize length:1];
+                        
+                        NSLog(@"customBlockSize:%d, ori:%@", customBlockSize, byteData);
+                        
+                        for (int i = 0; i < customBlockSize; i++) {
+                            byteData = [NSData dataWithBytes:((char *)[fileData bytes] + index)length:1];
+                            index += 1;
+                            
+                            NSLog(@"custom block:%@", byteData);
+                        }
+                        
+                        byteData = [NSData dataWithBytes:((char *)[fileData bytes] + index)length:1];
+                        index++;
+                        if (compareByte(byteData, @"<00>")) {
+                            NSLog(@"end of application extension block");
+                        }
+                        break;
                     }
-
-                    byteData = [NSData dataWithBytes:((char *)[fileData bytes] + index)length:1];
-                    index++;
-                    if (compareByte(byteData, @"<00>")) {
-                        NSLog(@"end of application extension block");
+                    default:{
+                        NSLog(@"Unknown Extension");
+                        byteData = [NSData dataWithBytes:((char *)[fileData bytes] + index)length:1];
+                        
+                        index += 1;
+                        
+                        unsigned char size;
+                        
+                        [byteData getBytes:&size length:1];
+                        
+                        NSLog(@"size:%d", size);
+                        
+                        index += size;
+                        
+                        byteData = [NSData dataWithBytes:((char *)[fileData bytes] + index)length:1];
+                        index++;
+                        if (compareByte(byteData, @"<00>")) {
+                            NSLog(@"end of unknown extension block");
+                        }
+                        break;
                     }
                 }
+                
+//                if (compareByte(byteData, @"<f9>")) {
+//                    NSLog(@"Graphics Control Extension");
+//                    byteData = [NSData dataWithBytes:((char *)[fileData bytes] + index)length:1];
+//
+//                    index += 1;
+//
+//                    unsigned char size;
+//
+//                    [byteData getBytes:&size length:1];
+//
+//                    NSLog(@"size:%d", size);
+//                    
+//                    byteData = [NSData dataWithBytes:((char *) [fileData bytes] + index) length:1];
+//                    
+//                    char localPackedField;
+//                    
+//                    [byteData getBytes:&localPackedField length:1];
+//                    
+//                    BOOL isTransparentFlag = (localPackedField & 0x1) > 0;
+//                    
+//                    index++;
+//                    
+//                    byteData = [NSData dataWithBytes:((char *) [fileData bytes] + index) length:2];
+//                    
+//                    [byteData getBytes:&delay length:2];
+//                    
+//                    NSLog(@"delay:%d, rawData:%@", delay, byteData);
+//                    
+//                    index += 2;
+//
+//                    byteData = [NSData dataWithBytes:((char *)[fileData bytes] + index)length:1];
+//                    
+//                    char content;
+//                    
+//                    [byteData getBytes:&content length:1];
+//                    
+//                    
+//                    
+//                    
+//                    
+//                    if(isTransparentFlag){
+//                        transparentColorIndex = content;
+//                    }
+//
+//                    index ++;
+//
+//                    NSLog(@"content:%@", byteData);
+//                }else if (compareByte(byteData, @"<fe>")) {
+//                    byteData = [NSData dataWithBytes:((char *)[fileData bytes] + index)length:1];
+//                    index += 1;
+//
+//                    while (compareByte(byteData, @"<00>")) {
+//                        NSLog(@"Comment Extension:%@", byteData);
+//
+//                        byteData = [NSData dataWithBytes:((char *)[fileData bytes] + index)length:1];
+//                        index += 1;
+//                    }
+//                }else if (compareByte(byteData, @"<ff>")) {
+//                    NSLog(@"Application Extension Block");
+//                    byteData = [NSData dataWithBytes:((char *)[fileData bytes] + index)length:1];
+//                    index += 1;
+//
+//                    unsigned char blockSize;
+//                    [byteData getBytes:&blockSize length:1];
+//
+//                    byteData = [NSData dataWithBytes:((char *)[fileData bytes] + index)length:8];
+//                    index += 8;
+//
+//                    NSLog(@"application identifier:%@",
+//                          [[NSString alloc] initWithData:byteData encoding:NSUTF8StringEncoding]);
+//
+//                    byteData = [NSData dataWithBytes:((char *)[fileData bytes] + index)length:3];
+//                    index += 3;
+//
+//                    NSLog(@"application Authentication Code:%@",
+//                          [[NSString alloc] initWithData:byteData encoding:NSUTF8StringEncoding]);
+//
+//                    byteData = [NSData dataWithBytes:((char *)[fileData bytes] + index)length:1];
+//                    index++;
+//
+//                    unsigned char customBlockSize;
+//                    [byteData getBytes:&customBlockSize length:1];
+//
+//                    NSLog(@"customBlockSize:%d, ori:%@", customBlockSize, byteData);
+//
+//                    for (int i = 0; i < customBlockSize; i++) {
+//                        byteData = [NSData dataWithBytes:((char *)[fileData bytes] + index)length:1];
+//                        index += 1;
+//
+//                        NSLog(@"custom block:%@", byteData);
+//                    }
+//
+//                    byteData = [NSData dataWithBytes:((char *)[fileData bytes] + index)length:1];
+//                    index++;
+//                    if (compareByte(byteData, @"<00>")) {
+//                        NSLog(@"end of application extension block");
+//                    }
+//                }else{
+//                    NSLog(@"Unknown Extension");
+//                    byteData = [NSData dataWithBytes:((char *)[fileData bytes] + index)length:1];
+//                    
+//                    index += 1;
+//                    
+//                    unsigned char size;
+//                    
+//                    [byteData getBytes:&size length:1];
+//                    
+//                    NSLog(@"size:%d", size);
+//                    
+//                    index += size;
+//                    
+//                    byteData = [NSData dataWithBytes:((char *)[fileData bytes] + index)length:1];
+//                    index++;
+//                    if (compareByte(byteData, @"<00>")) {
+//                        NSLog(@"end of unknown extension block");
+//                    }
+//                }
             }
 
             // Image Descriptor(main data)

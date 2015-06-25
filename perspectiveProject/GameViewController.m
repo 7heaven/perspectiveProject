@@ -23,13 +23,13 @@
 - (void)awakeFromNib {
     self.stageView.delegate = self;
 
-    [self.testImage setImageScaling:NSImageScaleProportionallyUpOrDown];
+    [self.testImage setImageScaling:NSImageScaleProportionallyDown];
 
     FileParser *parser = [[FileParser alloc] init];
     
 //    [parser parseSTLFileWithPath:@"/Users/caifangmao/Downloads/PS3_Stand_Micro.stl"];
 
-    _images = [parser parseGIFFileWithPath:@"/Users/caifangmao/Downloads/gif/132.gif"];
+    _images = [parser parseGIFFileWithPath:@"/Users/caifangmao/Downloads/gif/3dolph.gif"];
 
     if(_images.count == 1){
         [self.testImage setImage:_images[0][@"image"]];
